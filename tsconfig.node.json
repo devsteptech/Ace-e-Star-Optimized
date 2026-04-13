@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "skipLibCheck": true
+  },
+  "include": [
+    "vite.config.ts"
+  ]
+}

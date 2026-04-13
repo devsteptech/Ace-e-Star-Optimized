@@ -1,0 +1,11 @@
+/* gradient button class used in your old UI */
+.btn-gradient-bg {
+    background: linear-gradient(90deg, #e08213 0%, #fcc125 100%);
+}
+
+/* optional: smoother font rendering */
+html,
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
