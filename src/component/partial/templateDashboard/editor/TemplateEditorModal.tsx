@@ -220,7 +220,7 @@ export default function TemplateEditorModal({
                                                     draft={editor.draft}
                                                     onTemplateName={editor.setTemplateName}
                                                     onEventType={editor.setEventType}
-                                                    onAddField={editor.addField}
+                                                    // onAddField={editor.addField}
                                                     onMoveField={editor.moveField}
                                                     onRemoveField={editor.removeField}
                                                     onUpdateFieldLabel={editor.updateFieldLabel}

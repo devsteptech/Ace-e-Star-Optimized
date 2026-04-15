@@ -4,7 +4,7 @@ export default function Step1ScreenTemplate({
     draft,
     onTemplateName,
     onEventType,
-    onAddField,
+    // onAddField,
     onMoveField,
     onRemoveField,
     onUpdateFieldLabel,
@@ -19,7 +19,7 @@ export default function Step1ScreenTemplate({
     draft: TemplateDraft;
     onTemplateName: (v: string) => void;
     onEventType: (v: EventType) => void;
-    onAddField: () => void;
+    // onAddField: () => void;
     onMoveField: (id: string, dir: "up" | "down") => void;
     onRemoveField: (id: string) => void;
     onUpdateFieldLabel: (id: string, label: string) => void;
@@ -90,13 +90,13 @@ export default function Step1ScreenTemplate({
                             </div>
                         </div>
 
-                        <button
+                        {/* <button
                             type="button"
                             onClick={onAddField}
                             className="cursor-pointer h-9 px-3 rounded-lg bg-[#111827] text-white text-[11px] font-semibold"
                         >
                             + Add Field
-                        </button>
+                        </button> */}
                     </div>
 
                     <div className="mt-3 space-y-3">

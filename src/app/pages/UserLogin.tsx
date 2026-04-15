@@ -91,7 +91,7 @@ export default class UserLogin extends Component<{}, State> {
 
         return (
             <section className="relative bg-[url('/bg-images/WhoYouAre.png')] bg-cover bg-top-right h-screen min-h-screen bg-no-repeat w-full rounded-0 bg-white lg:overflow-y-scroll lg:overflow-x-hidden overflow-scroll">
-                <div className="relative z-10 mx-auto max-w-[1280px] w-full h-full px-4 sm:px-6 lg:px-0 py-8 sm:py-16 flex flex-col">
+                <div className="relative z-10 mx-auto max-w-[1280px] w-full h-full px-4 sm:px-6 lg:px-10 py-8 sm:py-16 flex flex-col">
                     <div className="flex-1 w-full flex items-center justify-center">
                         <div className="w-full max-w-[1180px] bg-white/95 border border-[#eeeeee] rounded-[36px] shadow-[0_35px_90px_rgba(0,0,0,0.18)] px-6 sm:px-16 py-10 sm:py-14">
                             <h2 className="text-center text-[22px] sm:text-[30px] font-bold text-[#4b4b4b]">
