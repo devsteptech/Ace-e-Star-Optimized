@@ -16,23 +16,29 @@ export function createEventApi(payload: {
   eventManagerEmail: string;
   logoUrl: string;
 }) {
-  return post<{ message: string; eventId: string }>(
-    "/api/events",
-    payload,
-    { authMode: "admin" }
-  );
+  return post<{ message: string; eventId: string }>("/api/events", payload, { authMode: "admin" });
+}
+
+export async function validateGuestsFileApi(templateId: string, file: File) {
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("templateId", templateId);
+
+  const res = await api.post("/api/events/guests/validate", fd, { authMode: "admin" } as any);
+
+  const data = res?.data;
+  if (!data || data.ok !== true) {
+    throw new Error(data?.message || "Invalid guest file");
+  }
+
+  return data;
 }
 
 export async function importGuestsApi(eventId: string, file: File) {
   const fd = new FormData();
   fd.append("file", file);
 
-  const res = await api.post(
-    `/api/events/${eventId}/guests/import`,
-    fd,
-    { authMode: "admin" } as any
-  );
-
+  const res = await api.post(`/api/events/${eventId}/guests/import`, fd, { authMode: "admin" } as any);
   return res.data;
 }
 

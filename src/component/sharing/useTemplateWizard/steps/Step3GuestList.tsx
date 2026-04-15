@@ -1,35 +1,38 @@
-
 export default function Step3GuestList({
-    onUpload,
+  onUpload,
+  file,
+  headers,
 }: {
-    onUpload: (f: File | null) => void;
+  onUpload: (f: File | null) => void;
+  file: File | null;
+  headers?: string[];
 }) {
+  const downloadTemplate = () => {
+    const cols = (headers && headers.length ? headers : ["Name", "Relation"]).map((h) => String(h).trim());
 
+    const row1 = cols.map((_, i) => (i === 0 ? "John Smith" : i === 1 ? "Organizer" : "Sample")).join(",");
+    const row2 = cols.map((_, i) => (i === 0 ? "Sarah Johnson" : i === 1 ? "Mother" : "Sample")).join(",");
 
-    const downloadTemplate = () => {
-        const csv =
-            "name,relation\n" +
-            "John Smith,Organizer\n" +
-            "Sarah Johnson,Mother\n" +
-            "Michael Brown,Father\n";
+    const csv = `${cols.join(",")}\n${row1}\n${row2}\n`;
 
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "guest_list.csv";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-    };
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "guest_list.csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+ 
+
     return (
         <div className="w-full max-w-[980px] mx-auto">
             <div className="bg-white border border-[#ececec] rounded-2xl shadow-sm p-6 sm:p-8">
                 <div className="text-[13px] font-semibold text-[#111827]">Guest List</div>
-                <div className="text-[12px] text-[#6b7280] mt-1">
-                    Import or add guests manually
-                </div>
+                <div className="text-[12px] text-[#6b7280] mt-1">Import or add guests manually</div>
 
                 <label className="mt-5 cursor-pointer block w-full rounded-xl border border-[#cbd5e1] bg-white p-6 sm:p-8">
                     <input
@@ -48,18 +51,8 @@ export default function Step3GuestList({
                                     strokeWidth="1.8"
                                     strokeLinejoin="round"
                                 />
-                                <path
-                                    d="M14 2v6h6"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinejoin="round"
-                                />
-                                <path
-                                    d="M12 17V11"
-                                    stroke="currentColor"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                />
+                                <path d="M14 2v6h6" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                                <path d="M12 17V11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                                 <path
                                     d="M9.5 13.5 12 11l2.5 2.5"
                                     stroke="currentColor"
@@ -81,28 +74,19 @@ export default function Step3GuestList({
                             </button>
                         </div>
 
+                        {/* ✅ Selected file name */}
+                        {file?.name && (
+                            <div className="mt-3 text-[11px] text-[#111827] font-medium truncate max-w-[92%]">
+                                Selected: {file.name}
+                            </div>
+                        )}
+
                         <div className="mt-5">
                             <span className="inline-flex items-center gap-2 h-9 px-4 rounded-lg border border-[#e5e7eb] bg-white text-[#111827] text-[12px] font-medium">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <path
-                                        d="M12 5v10"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                    />
-                                    <path
-                                        d="M8 9l4-4 4 4"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                    <path
-                                        d="M5 19h14"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                    />
+                                    <path d="M12 5v10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                                    <path d="M8 9l4-4 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M5 19h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                                 </svg>
                                 Upload File
                             </span>
@@ -110,36 +94,26 @@ export default function Step3GuestList({
                     </div>
                 </label>
 
-                <div className="mt-6 flex items-center gap-4">
+                {/* <div className="mt-6 flex items-center gap-4">
                     <div className="h-[1px] flex-1 bg-[#e5e7eb]" />
-                    <div className="text-[12px] text-[#6b7280] whitespace-nowrap">
-                        or add guests manually later
-                    </div>
+                    <div className="text-[12px] text-[#6b7280] whitespace-nowrap">or add guests manually later</div>
                     <div className="h-[1px] flex-1 bg-[#e5e7eb]" />
                 </div>
 
                 <div className="mt-6 rounded-xl border border-[#bfdbfe] bg-[#eff6ff] px-4 py-4 flex items-start gap-3">
                     <div className="mt-0.5 w-6 h-6 rounded-full bg-[#155DFC] text-white grid place-items-center">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path
-                                d="M20 6 9 17l-5-5"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
+                            <path d="M20 6 9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </div>
 
                     <div>
-                        <div className="text-[12px] font-medium text-[#1C398E]">
-                            You can add guests later
-                        </div>
+                        <div className="text-[12px] font-medium text-[#1C398E]">You can add guests later</div>
                         <div className="text-[12px] text-[#1C398E]">
                             You&apos;ll be able to add and manage guests from the check-in dashboard.
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     );

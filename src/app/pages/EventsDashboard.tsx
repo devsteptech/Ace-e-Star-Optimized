@@ -3,10 +3,14 @@ import EventsHeader from "@/component/partial/eventDashboard/EventsHeader";
 import EventsTableCard from "@/component/partial/eventDashboard/EventsTableCard";
 import ShareDetailsModal from "@/component/partial/eventDashboard/ShareDetailsModal";
 
-
-
 import { uploadImageApi } from "@/repositories/uploads.repo";
-import { createEventApi, getEventCredentialsApi, importGuestsApi } from "@/repositories/events.repo";
+import {
+    createEventApi,
+    getEventCredentialsApi,
+    importGuestsApi,
+    validateGuestsFileApi,
+} from "@/repositories/events.repo";
+
 import { ReportItem } from "../../types/reportTypes";
 import { getReportMetrics } from "../../utils/reportMetrics";
 import ReportPreviewModal from "../../component/partial/reportsDashboard/ReportPreviewModal";
@@ -22,10 +26,7 @@ export default function EventsDashboard() {
     const [sharePassword, setSharePassword] = useState("");
     const [shareLogo, setShareLogo] = useState<string | undefined>(undefined);
 
-    const activeEvent = useMemo(
-        () => events.find((e) => e.id === activeShareId),
-        [events, activeShareId]
-    );
+    const activeEvent = useMemo(() => events.find((e) => e.id === activeShareId), [events, activeShareId]);
 
     const [createEventOpen, setCreateEventOpen] = useState(false);
 
@@ -77,9 +78,7 @@ export default function EventsDashboard() {
                         setShareLogo(data.logoUrl || "");
 
                         setShareOpen(true);
-                    } catch (e: any) {
-                        // alert(e?.message || "Failed to load credentials");
-                    }
+                    } catch (e: any) { }
                 }}
                 onViewReport={(id) => {
                     setActiveReportId(id);
@@ -88,9 +87,7 @@ export default function EventsDashboard() {
                 onEndEvent={async (id) => {
                     try {
                         await endEvent(id);
-                    } catch (e: any) {
-                        // alert(e?.message || "End event failed");
-                    }
+                    } catch (e: any) { }
                 }}
             />
 
@@ -104,7 +101,7 @@ export default function EventsDashboard() {
                     setShareLogo(undefined);
                 }}
                 eventName={activeEvent?.name ?? "Event"}
-                username={shareEmail || activeEvent?.eventManagerEmail || ""}
+                username={shareEmail || (activeEvent as any)?.eventManagerEmail || ""}
                 password={sharePassword}
                 imageUrl={shareLogo || activeEvent?.logoUrl || "/images/sharedetail.png"}
             />
@@ -115,6 +112,12 @@ export default function EventsDashboard() {
                 onClose={() => setCreateEventOpen(false)}
                 onFinish={async (payload) => {
                     try {
+                        // Guest file required (safety; modal already enforces)
+                        if (!payload.guestFile) return;
+
+                        // validate BEFORE create
+                        await validateGuestsFileApi(payload.templateId, payload.guestFile);
+
                         let logoUrl = "";
                         if (payload.logoFile) {
                             logoUrl = await uploadImageApi(payload.logoFile);
@@ -123,7 +126,7 @@ export default function EventsDashboard() {
                         const resp = await createEventApi({
                             templateId: payload.templateId,
                             eventName: payload.eventName,
-                            eventDate: payload.eventDate,
+                            eventDate: payload.eventDate, // YYYY-MM-DD
                             venue: payload.venue,
                             description: payload.description,
                             expectedGuests: payload.expectedGuests,
@@ -131,15 +134,11 @@ export default function EventsDashboard() {
                             logoUrl,
                         });
 
-                        if (payload.guestFile) {
-                            await importGuestsApi(resp.eventId, payload.guestFile);
-                        }
+                        await importGuestsApi(resp.eventId, payload.guestFile);
 
                         await reload();
-
-                        // alert("Event created and guests imported.");
                     } catch (e: any) {
-                        // alert(e?.message || "Create/import failed");
+                        return;
                     }
                 }}
             />

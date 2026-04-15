@@ -14,27 +14,22 @@ function mapDraftToPayload(draft: TemplateDraft) {
         eventType: draft.eventType,
         guestFields: draft.guestFields,
         enableCheckoutTag: draft.enableCheckoutTag,
-
         thumbnailUrl: draft.thumbnailUrl,
-
         screen: {
             headerBgUrl: draft.screenBgUrl,
             bodyBgUrl: draft.screenBgUrl,
             logoUrl: draft.screenLogoUrl,
         },
-
         checkInTag: {
             size: draft.checkInTagSize,
             bgUrl: draft.checkInBgUrl,
             logoUrl: draft.checkInLogoUrl,
         },
-
         checkOutTag: {
             size: draft.checkOutTagSize,
             bgUrl: draft.checkOutBgUrl,
             logoUrl: draft.checkOutLogoUrl,
         },
-
         checkOutTagText: draft.checkOutTagText,
     };
 }
@@ -43,7 +38,6 @@ function mapBackendTemplateToDraft(t: BackendTemplate): TemplateDraft {
     return {
         templateName: t?.templateName ?? "",
         eventType: t?.eventType ?? "Wedding",
-
         guestFields:
             Array.isArray(t?.guestFields) && t.guestFields.length
                 ? t.guestFields.map((f: any) => ({
@@ -52,21 +46,15 @@ function mapBackendTemplateToDraft(t: BackendTemplate): TemplateDraft {
                     fieldName: f.fieldName ?? "",
                 }))
                 : [{ id: uid(), label: "", fieldName: "" }],
-
         enableCheckoutTag: !!t?.enableCheckoutTag,
-
         checkInTagSize: t?.checkInTag?.size ?? "8x2",
         checkOutTagSize: t?.checkOutTag?.size ?? "8x2",
         checkOutTagText: t?.checkOutTagText ?? "",
-
         thumbnailUrl: t?.thumbnailUrl ?? "",
-
         screenBgUrl: t?.screen?.headerBgUrl ?? "",
         screenLogoUrl: t?.screen?.logoUrl ?? "",
-
         checkInBgUrl: t?.checkInTag?.bgUrl ?? "",
         checkInLogoUrl: t?.checkInTag?.logoUrl ?? "",
-
         checkOutBgUrl: t?.checkOutTag?.bgUrl ?? "",
         checkOutLogoUrl: t?.checkOutTag?.logoUrl ?? "",
     };
@@ -78,20 +66,16 @@ export const templatesRepo = {
     },
 
     async create(draft: TemplateDraft) {
-        const res = await post<{ card: Template }>(
-            "/api/templates",
-            mapDraftToPayload(draft),
-            { authMode: "admin" }
-        );
+        const res = await post<{ card: Template }>("/api/templates", mapDraftToPayload(draft), {
+            authMode: "admin",
+        });
         return res.card;
     },
 
     async update(id: string, draft: TemplateDraft) {
-        const res = await put<{ card: Template }>(
-            `/api/templates/${id}`,
-            mapDraftToPayload(draft),
-            { authMode: "admin" }
-        );
+        const res = await put<{ card: Template }>(`/api/templates/${id}`, mapDraftToPayload(draft), {
+            authMode: "admin",
+        });
         return res.card;
     },
 

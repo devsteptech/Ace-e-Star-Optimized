@@ -1,5 +1,17 @@
 import type { TagSize, TemplateDraft } from "../../../../../types/templateEditorTypes";
 
+function PreviewTile({ label, url }: { label: string; url?: string | null }) {
+    if (!url) return null;
+    return (
+        <div className="rounded-xl border border-[#ececec] bg-white p-3">
+            <div className="text-[11px] font-semibold text-[#111827] mb-2">{label}</div>
+            <div className="w-full h-[92px] rounded-lg overflow-hidden border border-[#e5e7eb] bg-[#f3f4f6]">
+                <img src={url} alt={label} className="w-full h-full object-cover" />
+            </div>
+        </div>
+    );
+}
+
 export default function Step2CheckInTag({
     draft,
     variant,
@@ -29,6 +41,8 @@ export default function Step2CheckInTag({
     };
 
     if (variant === "details") {
+        const hasAssets = !!(draft.checkInBgUrl || draft.checkInLogoUrl);
+
         return (
             <div className="space-y-5">
                 <div className="bg-white border border-[#ececec] rounded-2xl shadow-sm p-4 sm:p-5">
@@ -90,6 +104,14 @@ export default function Step2CheckInTag({
                             Add Logo
                         </button>
                     </div>
+
+                    {/* ✅ show uploaded images */}
+                    {hasAssets && (
+                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <PreviewTile label="Check-In Background" url={draft.checkInBgUrl} />
+                            <PreviewTile label="Check-In Logo" url={draft.checkInLogoUrl} />
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -117,9 +139,7 @@ export default function Step2CheckInTag({
                     >
                         <div className="w-full grid grid-cols-[70px_1fr_70px] items-center">
                             <div className="flex items-center justify-start">
-                                {logo ? (
-                                    <img src={logo} alt="Logo" className="h-16 w-auto object-contain" />
-                                ) : null}
+                                {logo ? <img src={logo} alt="Logo" className="h-16 w-auto object-contain" /> : null}
                             </div>
 
                             <div className="text-center">

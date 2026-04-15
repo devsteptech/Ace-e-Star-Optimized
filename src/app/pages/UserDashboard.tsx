@@ -109,7 +109,7 @@ export default function UserDashboard() {
             style={bgStyle}
         >
             <div className="max-w-[1280px] flex flex-col justify-between mt-20 sm:mt-28 lg:mt-22 2xl:mt-26 h-[80vh] mx-auto">
-                <WelcomeBanner eventName={eventName} logoUrl={screenLogoUrl || eventLogoUrl} />
+                <WelcomeBanner eventName={eventName} logoUrl={eventLogoUrl} />
 
                 <div className="mt-6">
                     <UserCheckForm

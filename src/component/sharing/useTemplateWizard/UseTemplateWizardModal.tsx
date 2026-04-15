@@ -4,6 +4,7 @@ import Step1SelectEvent from "./steps/Step1SelectEvent";
 import Step2EventDetails from "./steps/Step2EventDetails";
 import Step3GuestList from "./steps/Step3GuestList";
 import { useTemplates } from "@/hooks/useTemplates";
+import { validateGuestsFileApi } from "@/repositories/events.repo";
 
 export default function UseTemplateWizardModal({
     open,
@@ -12,7 +13,7 @@ export default function UseTemplateWizardModal({
     onFinish,
 }: {
     open: boolean;
-    templateId: string | null; 
+    templateId: string | null;
     onClose: () => void;
     onFinish?: (payload: {
         templateId: string;
@@ -22,7 +23,7 @@ export default function UseTemplateWizardModal({
         venue: string;
         description: string;
         expectedGuests: string;
-        eventManagerEmail: string; 
+        eventManagerEmail: string;
         logoFile: File | null;
         guestFile: File | null;
     }) => void;
@@ -41,12 +42,24 @@ export default function UseTemplateWizardModal({
     const [venue, setVenue] = useState("");
     const [description, setDescription] = useState("");
     const [expectedGuests, setExpectedGuests] = useState("");
-    const [eventManagerEmail, setEventManagerEmail] = useState(""); 
+    const [eventManagerEmail, setEventManagerEmail] = useState("");
     const [logoFile, setLogoFile] = useState<File | null>(null);
 
     const [guestFile, setGuestFile] = useState<File | null>(null);
 
+    const [submitting, setSubmitting] = useState(false);
+
     const effectiveTemplateId = lockedTemplate ? (templateId as string) : selectedTemplateId;
+
+    const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+    const isValidDate = (v: string) => {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+        const d = new Date(v);
+        return !Number.isNaN(d.getTime());
+    };
+
+    const isPositiveInt = (v: string) => /^\d+$/.test(v) && Number(v) > 0;
 
     useEffect(() => {
         if (!open) return;
@@ -60,9 +73,11 @@ export default function UseTemplateWizardModal({
         setVenue("");
         setDescription("");
         setExpectedGuests("");
-        setEventManagerEmail(""); 
+        setEventManagerEmail("");
         setLogoFile(null);
         setGuestFile(null);
+
+        setSubmitting(false);
     }, [open, lockedTemplate, templateId]);
 
     useEffect(() => {
@@ -83,14 +98,39 @@ export default function UseTemplateWizardModal({
     }, [open, onClose]);
 
     const canContinue = useMemo(() => {
+        if (!effectiveTemplateId) return false;
+
+        // Step 1 (create): select template
         if (variant === "create" && step === 1) return effectiveTemplateId.length > 0;
 
-        if (((variant === "create" && step === 2) || (variant === "use" && step === 1))) {
-            return eventManagerEmail.trim().length > 0;
+        // Event details step
+        if ((variant === "create" && step === 2) || (variant === "use" && step === 1)) {
+            return (
+                eventName.trim().length > 0 &&
+                isValidDate(eventDate) &&
+                venue.trim().length > 0 &&
+                isPositiveInt(expectedGuests) &&
+                isValidEmail(eventManagerEmail)
+            );
+        }
+
+        // Guest step: file required
+        if ((variant === "create" && step === 3) || (variant === "use" && step === 2)) {
+            return !!guestFile;
         }
 
         return true;
-    }, [variant, step, effectiveTemplateId, eventManagerEmail]);
+    }, [
+        effectiveTemplateId,
+        variant,
+        step,
+        eventName,
+        eventDate,
+        venue,
+        expectedGuests,
+        eventManagerEmail,
+        guestFile,
+    ]);
 
     if (!open) return null;
 
@@ -132,19 +172,23 @@ export default function UseTemplateWizardModal({
                                     venue={venue}
                                     description={description}
                                     expectedGuests={expectedGuests}
-                                    eventManagerEmail={eventManagerEmail}          
+                                    eventManagerEmail={eventManagerEmail}
+                                    logoFile={logoFile}                 // ✅ for preview
                                     onEventName={setEventName}
                                     onEventDate={setEventDate}
                                     onVenue={setVenue}
                                     onDescription={setDescription}
                                     onExpectedGuests={setExpectedGuests}
-                                    onEventManagerEmail={setEventManagerEmail}     
+                                    onEventManagerEmail={setEventManagerEmail}
                                     onLogoFile={setLogoFile}
                                 />
                             )}
 
                             {((variant === "create" && step === 3) || (variant === "use" && step === 2)) && (
-                                <Step3GuestList onUpload={setGuestFile} />
+                                <Step3GuestList
+                                    file={guestFile}                  
+                                    onUpload={setGuestFile}
+                                />
                             )}
                         </div>
 
@@ -152,6 +196,7 @@ export default function UseTemplateWizardModal({
                             <button
                                 type="button"
                                 onClick={() => {
+                                    if (submitting) return;
                                     if (step === 1) return onClose();
                                     setStep((s) => (s > 1 ? ((s - 1) as any) : s));
                                 }}
@@ -162,9 +207,25 @@ export default function UseTemplateWizardModal({
 
                             <button
                                 type="button"
-                                disabled={!canContinue || !effectiveTemplateId}
-                                onClick={() => {
-                                    if (step < maxStep) return setStep((s) => ((s + 1) as any));
+                                disabled={!canContinue || !effectiveTemplateId || submitting}
+                                onClick={async () => {
+                                    if (step < maxStep) {
+                                        setStep((s) => ((s + 1) as any));
+                                        return;
+                                    }
+
+                                    // DONE: validate guest file before allowing create
+                                    if (!guestFile) return;
+
+                                    setSubmitting(true);
+                                    try {
+                                        await validateGuestsFileApi(effectiveTemplateId, guestFile);
+                                    } catch (e: any) {
+                                        // bottom error removed; toast already handled in your app
+                                        return;
+                                    } finally {
+                                        setSubmitting(false);
+                                    }
 
                                     onFinish?.({
                                         templateId: effectiveTemplateId,
@@ -183,7 +244,7 @@ export default function UseTemplateWizardModal({
                                 }}
                                 className="cursor-pointer h-9 px-10 rounded-lg bg-[#5b5b5b] text-white text-[11px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
                             >
-                                {step === maxStep ? "Done" : "Continue"}
+                                {submitting ? "Validating..." : step === maxStep ? "Done" : "Continue"}
                             </button>
                         </div>
 
