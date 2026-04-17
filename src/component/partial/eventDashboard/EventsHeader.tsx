@@ -1,4 +1,4 @@
-import { GradianButton } from "@/component/sharing/gradian-button";
+import { GradianButton } from "@/component/sharing/GradianButton";
 
 type Props = {
     loading: boolean;

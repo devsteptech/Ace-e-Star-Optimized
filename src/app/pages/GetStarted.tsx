@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { Navigate } from "react-router-dom";
-import { GradianButton } from "@/component/sharing/gradian-button";
+import { GradianButton } from "@/component/sharing/GradianButton";
 
 export default class GetStarted extends Component {
     state = { go: false };

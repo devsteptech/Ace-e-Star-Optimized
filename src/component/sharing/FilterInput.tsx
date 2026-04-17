@@ -1,0 +1,39 @@
+interface FilterInputProps {
+    value: string;
+    loading?: boolean;
+    onChange: (value: string) => void;
+    placeholder?: string;
+    className?: string;
+    variant?: "wide" | "compact";
+}
+
+
+
+export default function FilterInput({
+    value,
+    onChange,
+    loading = false,
+    placeholder = "Search Guests...",
+    variant = "compact",
+    className = "",
+}: FilterInputProps) {
+
+    const widthClass = variant === "wide" ? "w-full md:w-[280px]" : "sm:w-[260px] w-[220px]";
+    return (
+        <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" strokeWidth="2" />
+                    <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+            </span>
+            <input
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={placeholder}
+                disabled={loading}
+                className={`${widthClass} h-9 rounded-lg border border-[#e5e7eb] bg-[#f3f4f6] pl-9 pr-3 text-[13px] text-black outline-none focus:border-[#FCC125] disabled:opacity-70 ${className}`}
+            />
+        </div>
+    );
+}

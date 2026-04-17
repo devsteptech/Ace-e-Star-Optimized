@@ -1,3 +1,5 @@
+import FilterInput from "@/component/sharing/FilterInput";
+
 export default function GuestListHeader({
     loading,
     query,
@@ -33,12 +35,12 @@ export default function GuestListHeader({
                     </svg>
                 </span>
 
-                <input
+                <FilterInput
+                    variant="wide"
                     value={query}
-                    onChange={(e) => onQueryChange(e.target.value)}
-                    placeholder="Search guests..."
-                    disabled={loading}
-                    className="md:w-[280px] w-full h-9 rounded-lg border border-[#e5e7eb] bg-[#f3f4f6] pl-9 pr-3 text-[13px] text-black outline-none focus:border-[#FCC125] disabled:opacity-70"
+                    onChange={onQueryChange}
+                    loading={loading}
+                    placeholder="Search Guests..."
                 />
             </div>
         </div>

@@ -1,5 +1,5 @@
 import type { FormEvent, ChangeEvent } from "react";
-import { GradianButton } from "@/component/sharing/gradian-button";
+import { GradianButton } from "@/component/sharing/GradianButton";
 
 type Props = {
     email: string;

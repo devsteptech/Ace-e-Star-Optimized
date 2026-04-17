@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 
 import { eventmanLoginApi } from "@/repositories/auth.repo";
 import { authStorage } from "@/helper/authStorage";
-import { GradianButton } from "@/component/sharing/gradian-button";
+import { GradianButton } from "@/component/sharing/GradianButton";
 
 type State = {
     username: string;

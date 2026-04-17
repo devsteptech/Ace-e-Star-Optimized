@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import type { Guest } from "@/types/guestTypes";
+import FilterInput from "./FilterInput";
 
 type Props = {
     title?: string;
@@ -53,13 +54,7 @@ function StatusPill({ status }: { status: string }) {
 export default function GuestListCard({
     title = "Guest List",
     subtitle,
-    guests = [
-        { name: "John Smith", status: "Checked In", checkInTime: "6:15 PM" },
-        { name: "Sarah Johnson", status: "Checked In", checkInTime: "6:18 PM" },
-        { name: "Michael Brown", status: "Pending", checkInTime: "-" },
-        { name: "Emily Davis", status: "Checked In", checkInTime: "6:22 PM" },
-        { name: "Robert Wilson", status: "Checked In", checkInTime: "6:25 PM" },
-    ],
+    guests = [],
     loading = false,
     eventName,
     hideViewDetail = false,
@@ -103,12 +98,8 @@ export default function GuestListCard({
                             </svg>
                         </span>
 
-                        <input
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search guests..."
-                            disabled={loading}
-                            className="sm:w-[260px] w-[220px] h-9 rounded-lg border border-[#e5e7eb] bg-[#f3f4f6] pl-9 pr-3 text-[13px] text-black outline-none focus:border-[#FCC125] disabled:opacity-70"
+                        <FilterInput
+                            variant="compact" value={query} onChange={setQuery} loading={loading} placeholder="Search Guests..."
                         />
                     </div>
                 </div>
