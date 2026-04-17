@@ -1,10 +1,10 @@
-
-.btn-gradient-bg {
+/* .btn-gradient-bg {
     background: linear-gradient(90deg, #e08213 0%, #fcc125 100%);
-}
-
-/* html,
-body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 } */
+
+
+/* .btn-gradient-bg:hover {
+    box-shadow: inset 400px 0 0 0 #D80286;
+     transition: background-color 5s ease-in 3s;
+}
+ */

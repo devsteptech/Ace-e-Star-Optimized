@@ -1,4 +1,5 @@
 import type { FormEvent, ChangeEvent } from "react";
+import { GradianButton } from "@/component/sharing/gradian-button";
 
 type Props = {
     email: string;
@@ -71,16 +72,16 @@ export default function LoginForm({
                                 Remember me
                             </label>
 
-                            <a href="#" className="text-[15px] text-[#2563eb]">
+                            {/* <a href="#" className="text-[15px] text-[#2563eb]">
                                 Forgot password?
-                            </a>
+                            </a> */}
                         </div>
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="cursor-pointer btn-gradient-bg w-full h-16 rounded-full text-white font-semibold text-[18px] shadow-[0_18px_45px_rgba(224,130,19,0.35)] flex items-center justify-center gap-3 mt-auto disabled:opacity-60"
+                        className={`cursor-pointer w-full h-16 rounded-full text-white font-semibold text-[18px] ${GradianButton}`}
                     >
                         {loading ? "Signing In..." : "Sign In"}
                         <img src="/images/signin.svg" alt="Sign In" className="w-6 h-6 object-contain" />

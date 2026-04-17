@@ -77,13 +77,13 @@ export default function AppHeader({ onMenuClick }: Props) {
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-4 min-w-[200px] justify-end">
-                        <button type="button" className="grid hidden sm:block place-items-center" aria-label="Settings">
+                        {/* <button type="button" className="grid hidden sm:block place-items-center" aria-label="Settings">
                             <img
                                 src="/images/setting.svg"
                                 alt="Settings"
                                 className="cursor-pointer w-[18px] h-[18px] object-contain"
                             />
-                        </button>
+                        </button> */}
 
                         <div className="h-[35px] w-[1px] hidden sm:block bg-[#E5E7EB]"></div>
 

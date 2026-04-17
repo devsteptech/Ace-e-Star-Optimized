@@ -4,6 +4,7 @@ import { Navigate } from "react-router-dom";
 
 import { eventmanLoginApi } from "@/repositories/auth.repo";
 import { authStorage } from "@/helper/authStorage";
+import { GradianButton } from "@/component/sharing/gradian-button";
 
 type State = {
     username: string;
@@ -136,7 +137,7 @@ export default class UserLogin extends Component<{}, State> {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="cursor-pointer btn-gradient-bg w-full h-16 rounded-full text-white font-semibold text-[18px] shadow-[0_18px_45px_rgba(224,130,19,0.35)] flex items-center justify-center gap-3 mt-8 sm:mt-10 disabled:opacity-60"
+                                        className={`cursor-pointer w-full h-16 rounded-full text-white font-semibold text-[18px] mt-8 sm:mt-10 disabled:opacity-60 ${GradianButton}`}
                                     >
                                         {loading ? "Signing In..." : "Sign In"}
                                     </button>

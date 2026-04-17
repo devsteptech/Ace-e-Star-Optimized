@@ -1,5 +1,6 @@
 import { Component } from "react";
 import { Navigate } from "react-router-dom";
+import { GradianButton } from "@/component/sharing/gradian-button";
 
 export default class GetStarted extends Component {
     state = { go: false };
@@ -10,11 +11,11 @@ export default class GetStarted extends Component {
         return (
             <section className="bg-[url('/bg-images/started-banner.png')] bg-cover bg-center min-h-screen w-full overflow-hidden">
                 <div className="max-w-[1280px] mx-auto min-h-screen flex flex-col items-center justify-between py-10 px-4">
-                    <img className="w-[240px] sm:w-[320px] md:w-[420px]" src="/images/ace-logo.png" alt="" />
+                    <img className="w-[240px] sm:w-[320px] md:w-[420px] pt-40" src="/images/ace-logo.png" alt="" />
 
                     <button
                         onClick={() => this.setState({ go: true })}
-                        className="btn-gradient w-[90%] sm:w-[420px] lg:w-[360px] py-[28px] sm:py-[34px]"
+                        className={`sm:w-105 lg:w-90 py-7 sm:py-6 rounded-full cursor-pointer text-white font-bold ${GradianButton}`}
                     >
                         <span>Get Started</span>
                     </button>
