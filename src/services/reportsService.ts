@@ -1,4 +1,3 @@
-
 import { reportsRepo } from "@/repositories/reports.repo";
 import { ReportItem } from "@/types/reportTypes";
 import { ReportMetrics } from "@/utils/reportMetrics";
@@ -10,6 +9,7 @@ export type ReportAttendanceRow = {
     checkInTime: string;
     type: string;
     status: string;
+    feedback?: { label: string; value: string }[];
 };
 
 type EventItemLike = {

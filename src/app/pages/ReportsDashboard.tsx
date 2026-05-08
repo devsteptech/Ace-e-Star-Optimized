@@ -6,7 +6,7 @@ import type { ReportItem } from "@/types/reportTypes";
 import type { ReportMetrics } from "@/utils/reportMetrics";
 import { useReports } from "@/hooks/useReports";
 import { fetchReportDetail } from "@/services/reportsService";
-import { downloadReportPdf } from "@/services/reportPdf";
+import { downloadAttendancePdf, downloadReportPdf } from "@/services/reportPdf";
 
 export default function ReportsDashboard() {
     const { loading, reports } = useReports();
@@ -30,7 +30,6 @@ export default function ReportsDashboard() {
             setDetailMetrics(d.metrics);
             setDetailAttendance(d.attendance || []);
         } catch (e: any) {
-            // alert(e?.message || "Failed to load report");
         } finally {
             setDetailLoading(false);
         }
@@ -39,9 +38,9 @@ export default function ReportsDashboard() {
     const onDownload = async (id: string) => {
         try {
             const d = await fetchReportDetail(id);
-            downloadReportPdf(d.report, d.metrics);
+            await downloadAttendancePdf(d.report, d.attendance || []);
+            await downloadReportPdf(d.report, d.metrics);
         } catch (e: any) {
-            // alert(e?.message || "Failed to download report");
         }
     };
 

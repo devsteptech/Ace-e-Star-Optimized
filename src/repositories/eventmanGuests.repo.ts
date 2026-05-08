@@ -1,9 +1,15 @@
 import { get, post, put, del } from "@/repositories/http";
 
+export type FeedbackItem = {
+    label: string;
+    value: string;
+};
+
 export type WalkInPayload = {
     name: string;
     relation: string;
     action: "checkin" | "checkout";
+    feedback?: FeedbackItem[];
 };
 
 export type GuestRow = {
@@ -38,7 +44,7 @@ export const eventmanGuestsRepo = {
     walkIn: (payload: WalkInPayload) =>
         post<any>(`/api/eventman/walkin`, payload, { authMode: "user" }),
 
-    checkIn: (payload: { name: string; relation: string }) =>
+    checkIn: (payload: { name: string; relation: string; feedback?: FeedbackItem[] }) =>
         post<any>(`/api/eventman/checkin`, payload, { authMode: "user" }),
 
     checkOut: (payload: { name: string; relation: string }) =>

@@ -10,6 +10,7 @@ import { getMyEventConfigApi } from "@/repositories/eventman.repo";
 
 type GuestField = { id: string; label: string; fieldName: string };
 type TagSize = "8x2" | "6x2" | "4x2";
+type Question = { label: string; placeholder: string };
 
 function normalizeAssetUrl(url?: string) {
     if (!url) return "";
@@ -50,6 +51,8 @@ export default function UserDashboard() {
         { id: "relation", label: "Your Relation", fieldName: "relation" },
     ]);
 
+    const [questions, setQuestions] = useState<Question[]>([]);
+
     useEffect(() => {
         (async () => {
             try {
@@ -76,6 +79,18 @@ export default function UserDashboard() {
                             fieldName: f.fieldName || `field_${idx + 1}`,
                         }))
                     );
+                }
+
+                const qs = cfg.event?.questions || [];
+                if (Array.isArray(qs) && qs.length) {
+                    setQuestions(
+                        qs.map((q: any) => ({
+                            label: String(q?.label ?? "").trim(),
+                            placeholder: String(q?.placeholder ?? "").trim(),
+                        }))
+                    );
+                } else {
+                    setQuestions([]);
                 }
 
                 const ci = cfg.template?.checkInTag || {};
@@ -121,6 +136,7 @@ export default function UserDashboard() {
                         checkInTag={checkInTag}
                         checkOutTag={checkOutTag}
                         checkOutTagText={checkOutTagText}
+                        questions={questions}
                     />
                 </div>
 
@@ -137,6 +153,7 @@ export default function UserDashboard() {
                 open={walkingGuestOpen}
                 onClose={() => setWalkingGuestOpen(false)}
                 fields={fields}
+                questions={questions}
                 enableCheckoutTag={enableCheckout}
                 eventName={eventName}
                 eventLogoUrl={eventLogoUrl}

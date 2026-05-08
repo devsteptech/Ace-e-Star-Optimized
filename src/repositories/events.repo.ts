@@ -15,6 +15,7 @@ export function createEventApi(payload: {
   expectedGuests: string;
   eventManagerEmail: string;
   logoUrl: string;
+  questions?: { label: string; placeholder: string }[];
 }) {
   return post<{ message: string; eventId: string }>("/api/events", payload, { authMode: "admin" });
 }

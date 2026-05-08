@@ -132,6 +132,7 @@ export default function EventsDashboard() {
                             expectedGuests: payload.expectedGuests,
                             eventManagerEmail: payload.eventManagerEmail,
                             logoUrl,
+                            questions: payload.questions,
                         });
 
                         await importGuestsApi(resp.eventId, payload.guestFile);

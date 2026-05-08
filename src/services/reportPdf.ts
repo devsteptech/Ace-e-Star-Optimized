@@ -5,12 +5,23 @@ import React from "react";
 import { ReportItem } from "@/types/reportTypes";
 import { ReportMetrics } from "@/utils/reportMetrics";
 import ReportPdfView from "@/component/partial/reportsDashboard/ReportPdfView";
+import ReportAttendancePdfView from "@/component/partial/reportsDashboard/ReportAttendancePdfView";
+
+type AttendanceRow = {
+    id: string;
+    name: string;
+    relation: string;
+    checkInTime: string;
+    type: string;
+    status: string;
+    feedback?: { label: string; value: string }[];
+};
 
 function sanitizeFileName(name: string) {
     return name.replace(/[^\w\-]+/g, "_");
 }
 
-export async function downloadReportPdf(report: ReportItem, metrics: ReportMetrics) {
+async function renderPdf(element: React.ReactElement, fileName: string) {
     const host = document.createElement("div");
     host.style.position = "fixed";
     host.style.left = "-10000px";
@@ -23,7 +34,7 @@ export async function downloadReportPdf(report: ReportItem, metrics: ReportMetri
     document.body.appendChild(host);
 
     const root = createRoot(host);
-    root.render(React.createElement(ReportPdfView, { report, metrics }));
+    root.render(element);
 
     const fontsReady = (document as any).fonts?.ready;
     if (fontsReady) await fontsReady;
@@ -60,8 +71,22 @@ export async function downloadReportPdf(report: ReportItem, metrics: ReportMetri
         }
     }
 
-    pdf.save(`${sanitizeFileName(report.name)}_report.pdf`);
+    pdf.save(fileName);
 
     root.unmount();
     host.remove();
+}
+
+export async function downloadReportPdf(report: ReportItem, metrics: ReportMetrics) {
+    await renderPdf(
+        React.createElement(ReportPdfView, { report, metrics }),
+        `${sanitizeFileName(report.name)}_analytics.pdf`
+    );
+}
+
+export async function downloadAttendancePdf(report: ReportItem, attendance: AttendanceRow[]) {
+    await renderPdf(
+        React.createElement(ReportAttendancePdfView, { report, attendance }),
+        `${sanitizeFileName(report.name)}_attendance.pdf`
+    );
 }

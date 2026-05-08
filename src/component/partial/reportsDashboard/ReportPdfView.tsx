@@ -59,7 +59,6 @@ export default function ReportPdfView({ report, metrics }: { report: ReportItem;
 
     return (
         <div className="bg-white p-8">
-            {/* SAME UI */}
             <div className="bg-white border border-[#ececec] rounded-2xl p-6 sm:p-7">
                 <div className="text-[14px] font-medium text-[#111827]">Event Summary</div>
 
@@ -113,13 +112,12 @@ export default function ReportPdfView({ report, metrics }: { report: ReportItem;
                 </div>
             </div>
 
-            {/* ...rest same as your code (keep as-is) */}
             <div className="mt-6">
                 <div className="w-full rounded-2xl bg-[#f3f4f6] p-1 flex">
-                    <div className="flex-1 h-10 rounded-xl bg-white text-[#111827] text-[14px] font-medium grid place-items-center shadow-sm">
+                    <div className="flex-1 h-10 rounded-xl text-[#111827] text-[14px] font-medium grid place-items-center opacity-90 shadow-sm">
                         Attendance
                     </div>
-                    <div className="flex-1 h-10 rounded-xl text-[#111827] text-[14px] font-medium grid place-items-center opacity-90">
+                    <div className="flex-1 h-10 rounded-xl bg-white text-[#111827] text-[14px] font-medium grid place-items-center shadow-sm">
                         Analytics
                     </div>
                 </div>

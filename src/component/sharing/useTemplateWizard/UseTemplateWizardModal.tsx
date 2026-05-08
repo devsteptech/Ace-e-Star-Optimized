@@ -3,6 +3,7 @@ import UseTemplateStepTimeline from "./UseTemplateStepTimeline";
 import Step1SelectEvent from "./steps/Step1SelectEvent";
 import Step2EventDetails from "./steps/Step2EventDetails";
 import Step3GuestList from "./steps/Step3GuestList";
+import Step3CustomFields, { CustomField } from "./steps/Step3CustomFields";
 import { useTemplates } from "@/hooks/useTemplates";
 import { validateGuestsFileApi } from "@/repositories/events.repo";
 
@@ -26,15 +27,16 @@ export default function UseTemplateWizardModal({
         eventManagerEmail: string;
         logoFile: File | null;
         guestFile: File | null;
+        questions: CustomField[];
     }) => void;
 }) {
     const { loading: templatesLoading, templates } = useTemplates();
 
     const lockedTemplate = !!templateId && templateId !== "create-event";
     const variant: "create" | "use" = lockedTemplate ? "use" : "create";
-    const maxStep = variant === "use" ? 2 : 3;
+    const maxStep = variant === "use" ? 3 : 4;
 
-    const [step, setStep] = useState<1 | 2 | 3>(1);
+    const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
     const [selectedTemplateId, setSelectedTemplateId] = useState("");
 
     const [eventName, setEventName] = useState("");
@@ -45,6 +47,7 @@ export default function UseTemplateWizardModal({
     const [eventManagerEmail, setEventManagerEmail] = useState("");
     const [logoFile, setLogoFile] = useState<File | null>(null);
 
+    const [questions, setQuestions] = useState<CustomField[]>([]);
     const [guestFile, setGuestFile] = useState<File | null>(null);
 
     const [submitting, setSubmitting] = useState(false);
@@ -75,6 +78,7 @@ export default function UseTemplateWizardModal({
         setExpectedGuests("");
         setEventManagerEmail("");
         setLogoFile(null);
+        setQuestions([]);
         setGuestFile(null);
 
         setSubmitting(false);
@@ -97,13 +101,22 @@ export default function UseTemplateWizardModal({
         };
     }, [open, onClose]);
 
+    const normalizedQuestions = useMemo(() => {
+        const defLabel = (idx: number) => `Question ${idx + 1}`;
+        const defPlaceholder = () => `Enter your answer`;
+
+        return (questions || []).map((q, idx) => {
+            const label = String(q.label ?? "").trim() || defLabel(idx);
+            const placeholder = String(q.placeholder ?? "").trim() || defPlaceholder();
+            return { ...q, label, placeholder };
+        });
+    }, [questions]);
+
     const canContinue = useMemo(() => {
         if (!effectiveTemplateId) return false;
 
-        // Step 1 (create): select template
         if (variant === "create" && step === 1) return effectiveTemplateId.length > 0;
 
-        // Event details step
         if ((variant === "create" && step === 2) || (variant === "use" && step === 1)) {
             return (
                 eventName.trim().length > 0 &&
@@ -114,8 +127,13 @@ export default function UseTemplateWizardModal({
             );
         }
 
-        // Guest step: file required
         if ((variant === "create" && step === 3) || (variant === "use" && step === 2)) {
+            const labels = normalizedQuestions.map((q) => q.label.toLowerCase());
+            const unique = new Set(labels).size === labels.length;
+            return unique;
+        }
+
+        if ((variant === "create" && step === 4) || (variant === "use" && step === 3)) {
             return !!guestFile;
         }
 
@@ -130,6 +148,7 @@ export default function UseTemplateWizardModal({
         expectedGuests,
         eventManagerEmail,
         guestFile,
+        normalizedQuestions,
     ]);
 
     if (!open) return null;
@@ -173,7 +192,7 @@ export default function UseTemplateWizardModal({
                                     description={description}
                                     expectedGuests={expectedGuests}
                                     eventManagerEmail={eventManagerEmail}
-                                    logoFile={logoFile}                 // ✅ for preview
+                                    logoFile={logoFile}
                                     onEventName={setEventName}
                                     onEventDate={setEventDate}
                                     onVenue={setVenue}
@@ -185,9 +204,18 @@ export default function UseTemplateWizardModal({
                             )}
 
                             {((variant === "create" && step === 3) || (variant === "use" && step === 2)) && (
+                                <Step3CustomFields fields={questions} onChange={setQuestions} />
+                            )}
+
+                            {((variant === "create" && step === 4) || (variant === "use" && step === 3)) && (
                                 <Step3GuestList
-                                    file={guestFile}                  
+                                    file={guestFile}
                                     onUpload={setGuestFile}
+                                    headers={[
+                                        "Name",
+                                        "Relation",
+                                        ...normalizedQuestions.map((q) => q.label).filter(Boolean),
+                                    ]}
                                 />
                             )}
                         </div>
@@ -214,14 +242,12 @@ export default function UseTemplateWizardModal({
                                         return;
                                     }
 
-                                    // DONE: validate guest file before allowing create
                                     if (!guestFile) return;
 
                                     setSubmitting(true);
                                     try {
                                         await validateGuestsFileApi(effectiveTemplateId, guestFile);
                                     } catch (e: any) {
-                                        // bottom error removed; toast already handled in your app
                                         return;
                                     } finally {
                                         setSubmitting(false);
@@ -238,6 +264,7 @@ export default function UseTemplateWizardModal({
                                         eventManagerEmail,
                                         logoFile,
                                         guestFile,
+                                        questions: normalizedQuestions,
                                     });
 
                                     onClose();

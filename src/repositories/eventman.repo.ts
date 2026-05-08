@@ -1,9 +1,14 @@
 import { get } from "@/repositories/http";
 
-
-
 export type EventManConfigResponse = {
-    event: { id: string; name: string; logoUrl: string; templateId: string; templateType: string };
+    event: {
+        id: string;
+        name: string;
+        logoUrl: string;
+        templateId: string;
+        templateType: string;
+        questions?: { label: string; placeholder: string }[];
+    };
     template: {
         templateName: string;
         eventType: string;

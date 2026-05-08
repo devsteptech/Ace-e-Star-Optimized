@@ -93,10 +93,18 @@ export default function ReportPreviewModal({
     }, [open]);
 
     const attendanceRows = useMemo(() => {
-        return (attendance || []).map((r) => ({
-            name: r.name,
-            time: r.checkInTime,
-        }));
+        return (attendance || []).map((r) => {
+            const fb = Array.isArray(r.feedback) ? r.feedback : [];
+            const text =
+                fb.length === 0
+                    ? ""
+                    : fb.map((x) => `${String(x.label || "").trim()}: ${String(x.value || "").trim()}`).join(" | ");
+            return {
+                name: r.name,
+                time: r.checkInTime,
+                feedbackText: text,
+            };
+        });
     }, [attendance]);
 
     if (!open || !report) return null;
@@ -265,7 +273,14 @@ export default function ReportPreviewModal({
                                                 key={idx}
                                                 className="grid grid-cols-2 px-4 py-3 text-[12px] text-[#101828] border-t border-[#f0f0f0]"
                                             >
-                                                <div className="font-medium">{r.name}</div>
+                                                <div>
+                                                    <div className="font-medium">{r.name}</div>
+                                                    {r.feedbackText ? (
+                                                        <div className="mt-1 text-[11px] text-[#6b7280]">
+                                                            {r.feedbackText}
+                                                        </div>
+                                                    ) : null}
+                                                </div>
                                                 <div className="text-right text-[#4A5565]">{r.time}</div>
                                             </div>
                                         ))}

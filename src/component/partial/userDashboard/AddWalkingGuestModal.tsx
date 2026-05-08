@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { eventmanGuestsRepo } from "@/repositories/eventmanGuests.repo";
 import { downloadTagPdf } from "../../../services/tagPdf";
 import { TagSize } from "./TagPdfView";
+import FeedbackModal, { FeedbackQuestion } from "./FeedbackModal";
 
 type GuestField = { id: string; label: string; fieldName: string };
 
@@ -9,6 +10,7 @@ type Props = {
     open: boolean;
     onClose: () => void;
     fields?: GuestField[];
+    questions?: FeedbackQuestion[];
     enableCheckoutTag?: boolean;
 
     eventName: string;
@@ -29,6 +31,7 @@ export default function AddWalkingGuestModal({
     open,
     onClose,
     fields,
+    questions = [],
     enableCheckoutTag,
     eventName,
     eventLogoUrl,
@@ -47,6 +50,10 @@ export default function AddWalkingGuestModal({
     }, [safeFields]);
 
     const [form, setForm] = useState<Record<string, string>>(initial);
+
+    const [feedbackOpen, setFeedbackOpen] = useState(false);
+    const [feedback, setFeedback] = useState<Record<string, string>>({});
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         if (!open) return;
@@ -69,6 +76,9 @@ export default function AddWalkingGuestModal({
     useEffect(() => {
         if (!open) return;
         setForm(initial);
+        setFeedbackOpen(false);
+        setFeedback({});
+        setSaving(false);
     }, [open, initial]);
 
     if (!open) return null;
@@ -100,115 +110,140 @@ export default function AddWalkingGuestModal({
         return eventLogoUrl || tagLogo || screenLogoUrl || "";
     };
 
-    const submit = async (action: "checkin" | "checkout") => {
+    const doWalkInCheckInAndPrint = async (feedbackList: { label: string; value: string }[]) => {
         const { nameVal, relationVal } = getNameRelation();
+        if (!nameVal || !relationVal) return;
 
-        if (!nameVal || !relationVal) {
-            // alert("name and relation are required");
-            return;
-        }
-
+        setSaving(true);
         try {
             await eventmanGuestsRepo.walkIn({
                 name: nameVal,
                 relation: relationVal,
-                action,
+                action: "checkin",
+                feedback: feedbackList,
             });
 
-            if (action === "checkin") {
-                await downloadTagPdf({
-                    mode: "checkin",
-                    eventName,
-                    bgUrl: checkInTag.bgUrl,
-                    logoUrl: getLogoForTag(checkInTag.logoUrl),
-                    tagSize: checkInTag.size,
-                    fields: safeFields,
-                    values: form,
-                    fileName: `${eventName}_checkin_${nameVal}.pdf`,
-                });
-            } else {
-                await downloadTagPdf({
-                    mode: "checkout",
-                    eventName,
-                    bgUrl: checkOutTag.bgUrl,
-                    logoUrl: getLogoForTag(checkOutTag.logoUrl),
-                    tagSize: checkOutTag.size,
-                    fields: safeFields,
-                    values: form,
-                    checkOutText: checkOutTagText,
-                    fileName: `${eventName}_checkout_${nameVal}.pdf`,
-                });
-            }
+            await downloadTagPdf({
+                mode: "checkin",
+                eventName,
+                bgUrl: checkInTag.bgUrl,
+                logoUrl: getLogoForTag(checkInTag.logoUrl),
+                tagSize: checkInTag.size,
+                fields: safeFields,
+                values: form,
+                fileName: `${eventName}_checkin_${nameVal}.pdf`,
+            });
 
             window.dispatchEvent(new Event("guests:changed"));
             onClose();
         } catch (e: any) {
-            // alert(e?.message || "Walk-in failed");
+        } finally {
+            setSaving(false);
         }
+    };
+
+    const openFeedbackOrCheckIn = async () => {
+        const { nameVal, relationVal } = getNameRelation();
+        if (!nameVal || !relationVal) return;
+
+        if (!questions || questions.length === 0) {
+            await doWalkInCheckInAndPrint([]);
+            return;
+        }
+
+        const initObj: Record<string, string> = {};
+        questions.forEach((q) => {
+            initObj[q.label] = "";
+        });
+
+        setFeedback(initObj);
+        setFeedbackOpen(true);
+    };
+
+    const skipFeedback = async () => {
+        setFeedbackOpen(false);
+        await doWalkInCheckInAndPrint([]);
+    };
+
+    const submitFeedback = async () => {
+        const list = (questions || []).map((q) => ({
+            label: q.label,
+            value: String(feedback[q.label] ?? "").trim(),
+        }));
+
+        const ok = list.every((x) => x.value.length > 0);
+        if (!ok) return;
+
+        setFeedbackOpen(false);
+        await doWalkInCheckInAndPrint(list);
     };
 
     const inputClass =
         "w-full h-10 rounded-lg border border-[#e5e7eb] bg-[#f3f4f6] px-4 text-[13px] text-black outline-none focus:border-[#FCC125]";
 
     return (
-        <div className="fixed inset-0 z-[999] grid place-items-center">
-            <button
-                type="button"
-                className="absolute inset-0 bg-black/30"
-                aria-label="Close walking guest modal"
-                onClick={onClose}
-            />
+        <>
+            <div className="fixed inset-0 z-[999] grid place-items-center">
+                <button
+                    type="button"
+                    className="absolute inset-0 bg-black/30"
+                    aria-label="Close walking guest modal"
+                    onClick={onClose}
+                />
 
-            <div
-                role="dialog"
-                aria-modal="true"
-                className="relative w-[92%] max-w-[720px] rounded-2xl bg-white border border-[#ececec] shadow-[0_30px_80px_rgba(0,0,0,0.18)] p-6 sm:p-10"
-            >
-                <div className="text-center text-[18px] sm:text-[20px] font-bold text-[#111827]">
-                    Add Walking Guest
-                </div>
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    className="relative w-[92%] max-w-[720px] rounded-2xl bg-white border border-[#ececec] shadow-[0_30px_80px_rgba(0,0,0,0.18)] p-6 sm:p-10"
+                >
+                    <div className="text-center text-[18px] sm:text-[20px] font-bold text-[#111827]">
+                        Add Walking Guest
+                    </div>
 
-                <div className="mt-6 space-y-5">
-                    {safeFields.map((f) => (
-                        <div key={f.id}>
-                            <div className="text-[13px] font-semibold text-[#111827] mb-2">
-                                {f.label || "Field"}
+                    <div className="mt-6 space-y-5">
+                        {safeFields.map((f) => (
+                            <div key={f.id}>
+                                <div className="text-[13px] font-semibold text-[#111827] mb-2">
+                                    {f.label || "Field"}
+                                </div>
+
+                                <input
+                                    value={form[f.fieldName] || ""}
+                                    onChange={(e) => setField(f.fieldName, e.target.value)}
+                                    placeholder={f.label || "Enter value"}
+                                    className={inputClass}
+                                />
                             </div>
+                        ))}
 
-                            <input
-                                value={form[f.fieldName] || ""}
-                                onChange={(e) => setField(f.fieldName, e.target.value)}
-                                placeholder={f.label || "Enter value"}
-                                className={inputClass}
-                            />
-                        </div>
-                    ))}
-
-                    <div className="pt-2 grid grid-cols-! gap-4">
-                        <button
-                            type="button"
-                            onClick={() => submit("checkin")}
-                            className="cursor-pointer w-full h-11 rounded-lg text-white font-semibold
+                        <div className="pt-2 grid grid-cols-1 gap-4">
+                            <button
+                                type="button"
+                                onClick={openFeedbackOrCheckIn}
+                                disabled={saving}
+                                className="cursor-pointer w-full h-11 rounded-lg text-white font-semibold
                 bg-gradient-to-b from-[#008236] to-[#00A63E]
-                hover:brightness-105 active:brightness-95 transition"
-                        >
-                            Check In
-                        </button>
+                hover:brightness-105 active:brightness-95 transition disabled:opacity-60"
+                            >
+                                {saving ? "Checking In..." : "Check In"}
+                            </button>
 
-                        {/* {allowCheckout ? (
-              <button
-                type="button"
-                onClick={() => submit("checkout")}
-                className="cursor-pointer h-11 rounded-lg text-white font-semibold
-                  bg-gradient-to-b from-[#E0656A] to-[#9B353A]
-                  hover:brightness-105 active:brightness-95 transition"
-              >
-                Check Out
-              </button>
-            ) : null} */}
+                            {allowCheckout ? null : null}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <FeedbackModal
+                open={feedbackOpen}
+                questions={questions || []}
+                values={feedback}
+                onChange={(label, value) => setFeedback((p) => ({ ...p, [label]: value }))}
+                onSkip={skipFeedback}
+                onSubmit={submitFeedback}
+                submitting={saving}
+                onRequestClose={() => setFeedbackOpen(false)}
+            />
+        </>
     );
 }
