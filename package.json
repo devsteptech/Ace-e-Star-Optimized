@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "antd": "^6.3.6",
     "axios": "^1.15.0",
     "goober": "^2.1.14",
     "html2canvas": "^1.4.1",
