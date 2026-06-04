@@ -95,14 +95,14 @@ export default function ReportPreviewModal({
     const attendanceRows = useMemo(() => {
         return (attendance || []).map((r) => {
             const fb = Array.isArray(r.feedback) ? r.feedback : [];
-            const text =
-                fb.length === 0
-                    ? ""
-                    : fb.map((x) => `${String(x.label || "").trim()}: ${String(x.value || "").trim()}`).join(" | ");
+            // const text =
+            //     fb.length === 0
+            //         ? ""
+            //         : fb.map((x) => `${String(x.label || "").trim()}: ${String(x.value || "").trim()}`).join(" | ");
             return {
                 name: r.name,
                 time: r.checkInTime,
-                feedbackText: text,
+                feedbackText: fb,
             };
         });
     }, [attendance]);
@@ -275,9 +275,14 @@ export default function ReportPreviewModal({
                                             >
                                                 <div>
                                                     <div className="font-medium">{r.name}</div>
-                                                    {r.feedbackText ? (
-                                                        <div className="mt-1 text-[11px] text-[#6b7280]">
-                                                            {r.feedbackText}
+                                                    {r.feedbackText?.length ? (
+                                                        <div className="mt-2 text-xsm text-[#000] space-y-1">
+                                                            {r.feedbackText.map((item, index) => (
+                                                                <div key={index}>
+                                                                    <span className="font-medium">{item.label}:</span>{" "}
+                                                                    {item.value}
+                                                                </div>
+                                                            ))}
                                                         </div>
                                                     ) : null}
                                                 </div>
