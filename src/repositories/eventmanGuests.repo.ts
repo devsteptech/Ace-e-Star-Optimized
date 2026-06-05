@@ -5,11 +5,27 @@ export type FeedbackItem = {
     value: string;
 };
 
+export type FieldsMap = Record<string, string>;
+
 export type WalkInPayload = {
     name: string;
     relation: string;
     action: "checkin" | "checkout";
+    fields?: FieldsMap;              
     feedback?: FeedbackItem[];
+};
+
+export type CheckInPayload = {
+    name: string;
+    relation: string;
+    fields?: FieldsMap;              
+    feedback?: FeedbackItem[];
+};
+
+export type CheckOutPayload = {
+    name: string;
+    relation: string;
+    fields?: FieldsMap;      
 };
 
 export type GuestRow = {
@@ -20,6 +36,8 @@ export type GuestRow = {
     status: string;
     checkInTime?: string;
     type?: string;
+
+    fields?: FieldsMap;
 };
 
 function normalizeList(data: any): GuestRow[] {
@@ -44,9 +62,9 @@ export const eventmanGuestsRepo = {
     walkIn: (payload: WalkInPayload) =>
         post<any>(`/api/eventman/walkin`, payload, { authMode: "user" }),
 
-    checkIn: (payload: { name: string; relation: string; feedback?: FeedbackItem[] }) =>
+    checkIn: (payload: CheckInPayload) =>
         post<any>(`/api/eventman/checkin`, payload, { authMode: "user" }),
 
-    checkOut: (payload: { name: string; relation: string }) =>
+    checkOut: (payload: CheckOutPayload) =>
         post<any>(`/api/eventman/checkout`, payload, { authMode: "user" }),
 };

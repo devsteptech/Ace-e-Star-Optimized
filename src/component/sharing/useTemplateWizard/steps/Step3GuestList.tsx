@@ -74,7 +74,6 @@ export default function Step3GuestList({
                             </button>
                         </div>
 
-                        {/* ✅ Selected file name */}
                         {file?.name && (
                             <div className="mt-3 text-[11px] text-[#111827] font-medium truncate max-w-[92%]">
                                 Selected: {file.name}

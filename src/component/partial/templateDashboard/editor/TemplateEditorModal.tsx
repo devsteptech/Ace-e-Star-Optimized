@@ -10,7 +10,6 @@ import { uploadImageApi } from "@/repositories/uploads.repo";
 import { templatesRepo } from "@/repositories/templates.repo";
 import { useTemplateEditor } from "@/hooks/useTemplateEditor";
 
-
 export default function TemplateEditorModal({
     open,
     onClose,
@@ -52,11 +51,11 @@ export default function TemplateEditorModal({
 
     useEffect(() => {
         if (!open) return;
-
         if (!templateId) return;
 
         setLoadingEdit(true);
-        templatesRepo.getDraft(templateId)
+        templatesRepo
+            .getDraft(templateId)
             .then((d) => editor.loadDraft(d))
             .catch(() => { })
             .finally(() => setLoadingEdit(false));
@@ -95,6 +94,38 @@ export default function TemplateEditorModal({
     const rightBtnClass = isFinal
         ? "cursor-pointer h-10 px-10 rounded-lg bg-[#5b5b5b] text-white text-[12px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
         : "cursor-pointer h-10 px-10 rounded-lg text-white font-semibold text-[12px] bg-[linear-gradient(90deg,#ff3389_0%,#ff6dc2_100%)] disabled:opacity-60 disabled:cursor-not-allowed";
+
+    const makeId = () => {
+        const c: any = (globalThis as any).crypto;
+        if (c?.randomUUID) return c.randomUUID();
+        return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    };
+
+    const addGuestField = () => {
+        const list = Array.isArray(editor.draft.guestFields) ? editor.draft.guestFields : [];
+
+        let n = list.length + 1;
+        let fieldName = `field_${n}`;
+        const taken = new Set(list.map((x: any) => String(x.fieldName || "").toLowerCase()));
+
+        while (taken.has(fieldName.toLowerCase())) {
+            n += 1;
+            fieldName = `field_${n}`;
+        }
+
+        const next = {
+            id: makeId(),
+            label: `Field ${n}`,
+            fieldName,
+        };
+
+        const nextDraft: TemplateDraft = {
+            ...editor.draft,
+            guestFields: [...list, next],
+        };
+
+        editor.loadDraft(nextDraft); 
+    };
 
     return (
         <div className="fixed inset-0 z-[999]">
@@ -220,7 +251,7 @@ export default function TemplateEditorModal({
                                                     draft={editor.draft}
                                                     onTemplateName={editor.setTemplateName}
                                                     onEventType={editor.setEventType}
-                                                    // onAddField={editor.addField}
+                                                    onAddField={addGuestField}   
                                                     onMoveField={editor.moveField}
                                                     onRemoveField={editor.removeField}
                                                     onUpdateFieldLabel={editor.updateFieldLabel}

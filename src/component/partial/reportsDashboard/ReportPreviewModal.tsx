@@ -95,10 +95,6 @@ export default function ReportPreviewModal({
     const attendanceRows = useMemo(() => {
         return (attendance || []).map((r) => {
             const fb = Array.isArray(r.feedback) ? r.feedback : [];
-            // const text =
-            //     fb.length === 0
-            //         ? ""
-            //         : fb.map((x) => `${String(x.label || "").trim()}: ${String(x.value || "").trim()}`).join(" | ");
             return {
                 name: r.name,
                 time: r.checkInTime,

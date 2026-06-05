@@ -5,7 +5,6 @@ import { notifyError, notifySuccess } from "@/helper/notify";
 
 export type AuthMode = "admin" | "user" | "none";
 
-// Add custom flags on request config
 declare module "axios" {
     export interface AxiosRequestConfig {
         authMode?: AuthMode;
@@ -40,7 +39,6 @@ api.interceptors.request.use((config) => {
         (config.headers as any).Authorization = `Bearer ${token}`;
     }
 
-    // FormData upload: don't force content-type
     const isFormData =
         typeof FormData !== "undefined" && config.data instanceof FormData;
     if (isFormData && config.headers) {
@@ -88,7 +86,6 @@ api.interceptors.response.use(
             message = error.message;
         }
 
-        // error toast default ON, can be disabled
         const errorToastSetting = cfg?.toast?.error;
         const shouldToastError =
             !cfg?.silent && (errorToastSetting === undefined ? true : !!errorToastSetting);

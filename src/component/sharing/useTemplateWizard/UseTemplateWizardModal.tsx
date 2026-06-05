@@ -34,7 +34,13 @@ export default function UseTemplateWizardModal({
 
     const lockedTemplate = !!templateId && templateId !== "create-event";
     const variant: "create" | "use" = lockedTemplate ? "use" : "create";
-    const maxStep = variant === "use" ? 3 : 4;
+
+    const [includeGuestList, setIncludeGuestList] = useState(true); 
+
+    const maxStep = useMemo(() => {
+        if (variant === "use") return includeGuestList ? 3 : 2;
+        return includeGuestList ? 4 : 3;
+    }, [variant, includeGuestList]);
 
     const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
     const [selectedTemplateId, setSelectedTemplateId] = useState("");
@@ -68,6 +74,7 @@ export default function UseTemplateWizardModal({
         if (!open) return;
 
         setStep(1);
+        setIncludeGuestList(true); 
         if (!lockedTemplate) setSelectedTemplateId("");
         else setSelectedTemplateId(templateId as string);
 
@@ -83,6 +90,11 @@ export default function UseTemplateWizardModal({
 
         setSubmitting(false);
     }, [open, lockedTemplate, templateId]);
+
+    useEffect(() => {
+        if (!open) return;
+        if (step > maxStep) setStep(maxStep as any);
+    }, [includeGuestList, maxStep, open, step]);
 
     useEffect(() => {
         if (!open) return;
@@ -133,8 +145,10 @@ export default function UseTemplateWizardModal({
             return unique;
         }
 
-        if ((variant === "create" && step === 4) || (variant === "use" && step === 3)) {
-            return !!guestFile;
+        if (includeGuestList) {
+            if ((variant === "create" && step === 4) || (variant === "use" && step === 3)) {
+                return !!guestFile; 
+            }
         }
 
         return true;
@@ -142,6 +156,7 @@ export default function UseTemplateWizardModal({
         effectiveTemplateId,
         variant,
         step,
+        includeGuestList,
         eventName,
         eventDate,
         venue,
@@ -150,6 +165,45 @@ export default function UseTemplateWizardModal({
         guestFile,
         normalizedQuestions,
     ]);
+
+    const isFinal = step === (maxStep as any);
+
+    const GuestListChoiceBlock = (
+        <div className="mb-4 bg-white border border-[#ececec] rounded-2xl shadow-sm p-5">
+            <div className="text-[13px] font-semibold text-[#111827]">Guest List</div>
+            <div className="text-[12px] text-[#6b7280] mt-1">Do you want to import guest list file?</div>
+
+            <div className="mt-3 grid grid-cols-2 gap-2 max-w-[420px]">
+                <button
+                    type="button"
+                    onClick={() => setIncludeGuestList(true)}
+                    className={[
+                        "h-9 rounded-lg text-[11px] font-semibold border",
+                        includeGuestList
+                            ? "bg-[#2f2f2f] text-white border-[#2f2f2f]"
+                            : "bg-white text-[#111827] border-[#e5e7eb]",
+                    ].join(" ")}
+                >
+                    Yes (Upload CSV/Excel)
+                </button>
+                <button
+                    type="button"
+                    onClick={() => {
+                        setIncludeGuestList(false);
+                        setGuestFile(null); 
+                    }}
+                    className={[
+                        "h-9 rounded-lg text-[11px] font-semibold border",
+                        !includeGuestList
+                            ? "bg-[#2f2f2f] text-white border-[#2f2f2f]"
+                            : "bg-white text-[#111827] border-[#e5e7eb]",
+                    ].join(" ")}
+                >
+                    No (Walk-ins only)
+                </button>
+            </div>
+        </div>
+    );
 
     if (!open) return null;
 
@@ -170,7 +224,7 @@ export default function UseTemplateWizardModal({
                         </div>
 
                         <div className="mt-4">
-                            <UseTemplateStepTimeline step={step} variant={variant} />
+                            <UseTemplateStepTimeline step={step} variant={variant} includeGuestList={includeGuestList} />
                         </div>
 
                         <div className="mt-6 flex-1 min-h-0 overflow-y-auto modal-scroll pb-6">
@@ -181,8 +235,15 @@ export default function UseTemplateWizardModal({
                                     selectedTemplateId={selectedTemplateId}
                                     onChange={setSelectedTemplateId}
                                     locked={false}
+                                    includeGuestList={includeGuestList}
+                                    onIncludeGuestList={(v) => {
+                                        setIncludeGuestList(v);
+                                        if (!v) setGuestFile(null);
+                                    }}
                                 />
                             )}
+
+                            {variant === "use" && step === 1 && GuestListChoiceBlock}
 
                             {((variant === "create" && step === 2) || (variant === "use" && step === 1)) && (
                                 <Step2EventDetails
@@ -207,17 +268,18 @@ export default function UseTemplateWizardModal({
                                 <Step3CustomFields fields={questions} onChange={setQuestions} />
                             )}
 
-                            {((variant === "create" && step === 4) || (variant === "use" && step === 3)) && (
-                                <Step3GuestList
-                                    file={guestFile}
-                                    onUpload={setGuestFile}
-                                    headers={[
-                                        "Name",
-                                        "Relation",
-                                        ...normalizedQuestions.map((q) => q.label).filter(Boolean),
-                                    ]}
-                                />
-                            )}
+                            {includeGuestList &&
+                                ((variant === "create" && step === 4) || (variant === "use" && step === 3)) && (
+                                    <Step3GuestList
+                                        file={guestFile}
+                                        onUpload={setGuestFile}
+                                        headers={[
+                                            "Name",
+                                            "Relation",
+                                            ...normalizedQuestions.map((q) => q.label).filter(Boolean),
+                                        ]}
+                                    />
+                                )}
                         </div>
 
                         <div className="pt-5 border-t border-[#f0f0f0] flex items-center justify-between">
@@ -237,20 +299,23 @@ export default function UseTemplateWizardModal({
                                 type="button"
                                 disabled={!canContinue || !effectiveTemplateId || submitting}
                                 onClick={async () => {
-                                    if (step < maxStep) {
+                                   
+                                    if (step < (maxStep as any)) {
                                         setStep((s) => ((s + 1) as any));
                                         return;
                                     }
 
-                                    if (!guestFile) return;
-
-                                    setSubmitting(true);
-                                    try {
-                                        await validateGuestsFileApi(effectiveTemplateId, guestFile);
-                                    } catch (e: any) {
-                                        return;
-                                    } finally {
-                                        setSubmitting(false);
+                                  
+                                    if (includeGuestList) {
+                                        if (!guestFile) return; 
+                                        setSubmitting(true);
+                                        try {
+                                            await validateGuestsFileApi(effectiveTemplateId, guestFile);
+                                        } catch (e: any) {
+                                            return;
+                                        } finally {
+                                            setSubmitting(false);
+                                        }
                                     }
 
                                     onFinish?.({
@@ -263,7 +328,7 @@ export default function UseTemplateWizardModal({
                                         expectedGuests,
                                         eventManagerEmail,
                                         logoFile,
-                                        guestFile,
+                                        guestFile: includeGuestList ? guestFile : null,
                                         questions: normalizedQuestions,
                                     });
 
@@ -271,7 +336,7 @@ export default function UseTemplateWizardModal({
                                 }}
                                 className="cursor-pointer h-9 px-10 rounded-lg bg-[#5b5b5b] text-white text-[11px] font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
                             >
-                                {submitting ? "Validating..." : step === maxStep ? "Done" : "Continue"}
+                                {submitting ? "Validating..." : isFinal ? "Done" : "Continue"}
                             </button>
                         </div>
 

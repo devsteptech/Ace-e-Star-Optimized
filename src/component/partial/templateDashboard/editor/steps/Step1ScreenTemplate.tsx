@@ -32,6 +32,8 @@ export default function Step1ScreenTemplate({
     onAddBackground,
     onAddLogo,
     onAddPhoto,
+
+    onAddField, 
     uploading,
 }: {
     draft: TemplateDraft;
@@ -46,6 +48,8 @@ export default function Step1ScreenTemplate({
     onAddBackground: () => void;
     onAddLogo: () => void;
     onAddPhoto: () => void;
+
+    onAddField: () => void; 
     uploading: boolean;
 }) {
     const inputClass =
@@ -101,11 +105,19 @@ export default function Step1ScreenTemplate({
                 </div>
 
                 <div className="pt-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-3">
                         <div>
                             <div className="text-[15px] font-bold text-[#111827]">Guest Information Fields</div>
                             <div className="text-[12px] text-[#6b7280]">Drag to reorder fields</div>
                         </div>
+
+                        <button
+                            type="button"
+                            onClick={onAddField}
+                            className="cursor-pointer h-10 px-4 rounded-lg bg-[#2f2f2f] text-white text-[12px] font-semibold"
+                        >
+                            + Add Field
+                        </button>
                     </div>
 
                     <div className="mt-3 space-y-3">
@@ -147,6 +159,14 @@ export default function Step1ScreenTemplate({
                                         className={inputClass}
                                     />
                                 </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => onRemoveField(f.id)}
+                                    className="w-10 h-10 rounded-lg border border-[#fecaca] bg-white text-[#E7000B]"
+                                >
+                                    ✕
+                                </button>
                             </div>
                         ))}
                     </div>
@@ -179,7 +199,6 @@ export default function Step1ScreenTemplate({
                         Add Photo (Grid Thumbnail)
                     </button>
 
-                    {/* ✅ Uploaded assets preview (no flow change, just show) */}
                     {hasAnyScreenAsset && (
                         <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <PreviewTile label="Screen Background" url={draft.screenBgUrl} />

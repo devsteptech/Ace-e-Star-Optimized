@@ -105,7 +105,6 @@ export default function Step2CheckInTag({
                         </button>
                     </div>
 
-                    {/* ✅ show uploaded images */}
                     {hasAssets && (
                         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <PreviewTile label="Check-In Background" url={draft.checkInBgUrl} />

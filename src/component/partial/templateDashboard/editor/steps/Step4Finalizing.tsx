@@ -84,13 +84,13 @@ function LiveScreenPreviewFinal({
                                     </button>
                                 ) : null}
 
-                                <button
+                                {/* <button
                                     type="button"
                                     onClick={onOpenGuestList}
                                     className="cursor-pointer w-full h-10 rounded-lg text-white text-[12px] font-semibold bg-[linear-gradient(90deg,#ffc145_0%,#dba61f_100%)]"
                                 >
                                     Guest List
-                                </button>
+                                </button> */}
 
                                 <button
                                     type="button"

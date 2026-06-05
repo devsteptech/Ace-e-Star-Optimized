@@ -112,11 +112,9 @@ export default function EventsDashboard() {
                 onClose={() => setCreateEventOpen(false)}
                 onFinish={async (payload) => {
                     try {
-                        // Guest file required (safety; modal already enforces)
-                        if (!payload.guestFile) return;
-
-                        // validate BEFORE create
-                        await validateGuestsFileApi(payload.templateId, payload.guestFile);
+                        if (payload.guestFile) {
+                            await validateGuestsFileApi(payload.templateId, payload.guestFile);
+                        }
 
                         let logoUrl = "";
                         if (payload.logoFile) {
@@ -126,7 +124,7 @@ export default function EventsDashboard() {
                         const resp = await createEventApi({
                             templateId: payload.templateId,
                             eventName: payload.eventName,
-                            eventDate: payload.eventDate, // YYYY-MM-DD
+                            eventDate: payload.eventDate, 
                             venue: payload.venue,
                             description: payload.description,
                             expectedGuests: payload.expectedGuests,
@@ -135,7 +133,9 @@ export default function EventsDashboard() {
                             questions: payload.questions,
                         });
 
-                        await importGuestsApi(resp.eventId, payload.guestFile);
+                        if (payload.guestFile) {
+                            await importGuestsApi(resp.eventId, payload.guestFile);
+                        }
 
                         await reload();
                     } catch (e: any) {

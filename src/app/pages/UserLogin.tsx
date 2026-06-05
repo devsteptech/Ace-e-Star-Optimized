@@ -60,7 +60,6 @@ export default class UserLogin extends Component<{}, State> {
                 return;
             }
 
-            // tumhara old behavior: sessionStorage
             authStorage.setUserToken(token, "session");
 
             this.setState({

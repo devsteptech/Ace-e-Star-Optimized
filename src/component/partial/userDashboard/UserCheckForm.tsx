@@ -76,7 +76,7 @@ export default function UserCheckForm({
             const { name, relation } = getPayload();
             if (!name || !relation) return;
 
-            await eventmanGuestsRepo.checkIn({ name, relation, feedback: feedbackList });
+            await eventmanGuestsRepo.checkIn({ name, relation, fields: form, feedback: feedbackList });
 
             await downloadTagPdf({
                 mode: "checkin",
@@ -140,7 +140,7 @@ export default function UserCheckForm({
 
             if (!name || !relation) return;
 
-            await eventmanGuestsRepo.checkOut({ name, relation });
+            await eventmanGuestsRepo.checkOut({ name, relation, fields: form, });
 
             await downloadTagPdf({
                 mode: "checkout",

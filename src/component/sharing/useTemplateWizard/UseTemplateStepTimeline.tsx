@@ -1,23 +1,36 @@
 export default function UseTemplateStepTimeline({
     step,
     variant,
+    includeGuestList,
 }: {
     step: 1 | 2 | 3 | 4;
     variant: "create" | "use";
+    includeGuestList: boolean;
 }) {
     const steps =
         variant === "use"
-            ? ([
-                { num: 1, label: "Event Details" },
-                { num: 2, label: "Questions" },
-                { num: 3, label: "Guest List" },
-            ] as const)
-            : ([
-                { num: 1, label: "Select Event Template" },
-                { num: 2, label: "Event Details" },
-                { num: 3, label: "Questions" },
-                { num: 4, label: "Guest List" },
-            ] as const);
+            ? (includeGuestList
+                ? ([
+                    { num: 1, label: "Event Details" },
+                    { num: 2, label: "Questions" },
+                    { num: 3, label: "Guest List" },
+                ] as const)
+                : ([
+                    { num: 1, label: "Event Details" },
+                    { num: 2, label: "Questions" },
+                ] as const))
+            : (includeGuestList
+                ? ([
+                    { num: 1, label: "Select Event Template" },
+                    { num: 2, label: "Event Details" },
+                    { num: 3, label: "Questions" },
+                    { num: 4, label: "Guest List" },
+                ] as const)
+                : ([
+                    { num: 1, label: "Select Event Template" },
+                    { num: 2, label: "Event Details" },
+                    { num: 3, label: "Questions" },
+                ] as const));
 
     return (
         <div className="w-full max-w-[760px] mx-auto px-4">

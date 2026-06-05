@@ -119,6 +119,7 @@ export default function AddWalkingGuestModal({
             await eventmanGuestsRepo.walkIn({
                 name: nameVal,
                 relation: relationVal,
+                fields: form,
                 action: "checkin",
                 feedback: feedbackList,
             });

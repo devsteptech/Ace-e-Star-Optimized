@@ -126,7 +126,6 @@ export default function Step3CheckOutTag({
                         </button>
                     </div>
 
-                    {/* ✅ show uploaded images */}
                     {hasAssets && (
                         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <PreviewTile label="Check-Out Background" url={draft.checkOutBgUrl} />
