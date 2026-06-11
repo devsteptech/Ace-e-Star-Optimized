@@ -7,7 +7,7 @@ export default function WelcomeBanner({
 }) {
     return (
         <div className="sm:w-[820px] w-[94%] mx-auto rounded-2xl overflow-hidden shadow-sm">
-            <div className="relative bg-[url('/bg-images/userdashboardwelcomebg.png')] bg-cover bg-center bg-no-repeat px-6 sm:px-10 py-3 sm:py-7 text-center text-white">
+            <div className="relative bg-[url('/bg-images/userdashboardwelcomebg.png')] bg-cover bg-center bg-no-repeat px-0 sm:px-10 py-3 sm:py-7 text-center text-white">
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,#FF25A7_0%,#D55252_100%)] opacity-90" />
 
                 <div className="relative grid grid-cols-[70px_1fr_70px] items-center">

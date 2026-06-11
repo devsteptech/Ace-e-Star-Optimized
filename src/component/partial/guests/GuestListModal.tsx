@@ -37,7 +37,7 @@ export default function GuestListModal({ isOpen, onClose, fields }: Props) {
             />
 
             <div className="relative h-full w-full p-3 sm:p-6">
-                <div className="relative mx-auto max-w-[1180px] w-full h-full bg-white rounded-2xl border border-[#ececec] shadow-[0_30px_80px_rgba(0,0,0,0.18)] overflow-hidden">
+                <div className="relative mx-auto max-w-[1180px] w-full h-full bg-white rounded-2xl border border-[#ececec] shadow-[0_30px_80px_rgba(0,0,0,0.18)] overflow-scroll">
                     <button
                         type="button"
                         onClick={onClose}

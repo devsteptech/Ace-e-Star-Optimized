@@ -20,27 +20,37 @@ export default function ReportAttendancePdfView({
 }) {
     const rows = useMemo(() => attendance || [], [attendance]);
 
-    const cell: React.CSSProperties = {
+    const cellBase: React.CSSProperties = {
         borderBottom: "1px solid #e5e7eb",
         padding: "10px 10px",
-        verticalAlign: "top",
         fontSize: 12,
         color: "#111827",
+        textAlign: "center",      
+        verticalAlign: "middle",  
     };
 
-    const headCell: React.CSSProperties = {
-        ...cell,
+    const headCellBase: React.CSSProperties = {
+        ...cellBase,
         fontWeight: 700,
         background: "#f9fafb",
-        fontSize: 12,
         color: "#4b5563",
+    };
+
+    const sep: React.CSSProperties = {
+        borderRight: "1px solid #e5e7eb", 
+    };
+
+    const feedbackCell: React.CSSProperties = {
+        ...cellBase,
+        whiteSpace: "pre-line",
+        wordBreak: "break-word",
+        lineHeight: 1.35,
+        verticalAlign: "top",
     };
 
     return (
         <div style={{ padding: 28, fontFamily: "Arial, sans-serif", background: "#fff" }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>
-                {report.name}
-            </div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>{report.name}</div>
 
             <div style={{ marginTop: 6, fontSize: 12, color: "#6b7280" }}>
                 {report.template} • {report.date} • {report.time}
@@ -54,12 +64,12 @@ export default function ReportAttendancePdfView({
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
                         <tr>
-                            <th style={headCell}>Name</th>
-                            <th style={headCell}>Relation</th>
-                            <th style={headCell}>Check-in Time</th>
-                            <th style={headCell}>Status</th>
-                            <th style={headCell}>Type</th>
-                            <th style={headCell}>Feedback</th>
+                            <th style={{ ...headCellBase, ...sep }}>Name</th>
+                            <th style={{ ...headCellBase, ...sep }}>Relation</th>
+                            <th style={{ ...headCellBase, ...sep }}>Check-in Time</th>
+                            <th style={{ ...headCellBase, ...sep }}>Status</th>
+                            <th style={{ ...headCellBase, ...sep }}>Type</th>
+                            <th style={{ ...headCellBase }}>Feedback</th> 
                         </tr>
                     </thead>
 
@@ -69,16 +79,21 @@ export default function ReportAttendancePdfView({
                             const fbText =
                                 fb.length === 0
                                     ? "-"
-                                    : fb.map((x) => `${String(x.label || "").trim()}: ${String(x.value || "").trim()}`).join(" | ");
+                                    : fb
+                                        .map(
+                                            (x) =>
+                                                `${String(x.label || "").trim()}: ${String(x.value || "").trim()}`
+                                        )
+                                        .join("\n");
 
                             return (
                                 <tr key={r.id || String(idx)}>
-                                    <td style={cell}>{r.name || "-"}</td>
-                                    <td style={cell}>{r.relation || "-"}</td>
-                                    <td style={cell}>{r.checkInTime || "-"}</td>
-                                    <td style={cell}>{r.status || "-"}</td>
-                                    <td style={cell}>{r.type || "-"}</td>
-                                    <td style={cell}>{fbText}</td>
+                                    <td style={{ ...cellBase, ...sep }}>{r.name || "-"}</td>
+                                    <td style={{ ...cellBase, ...sep }}>{r.relation || "-"}</td>
+                                    <td style={{ ...cellBase, ...sep }}>{r.checkInTime || "-"}</td>
+                                    <td style={{ ...cellBase, ...sep }}>{r.status || "-"}</td>
+                                    <td style={{ ...cellBase, ...sep }}>{r.type || "-"}</td>
+                                    <td style={feedbackCell}>{fbText}</td> {/* last => no sep */}
                                 </tr>
                             );
                         })}

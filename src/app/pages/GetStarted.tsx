@@ -15,7 +15,7 @@ export default class GetStarted extends Component {
 
                     <button
                         onClick={() => this.setState({ go: true })}
-                        className={`sm:w-105 lg:w-90 py-7 sm:py-6 rounded-full cursor-pointer text-white font-bold ${GradianButton}`}
+                        className={`sm:w-105 lg:w-90 py-3 sm:py-6 w-50 rounded-full cursor-pointer text-white font-bold ${GradianButton}`}
                     >
                         <span>Get Started</span>
                     </button>
